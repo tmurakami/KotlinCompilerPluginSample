@@ -1,0 +1,17 @@
+<idea-plugin>
+    <id>idea-plugin</id>
+    <name>KotlinCompilerPluginSample</name>
+    <vendor email="support@localhost.localdomain"/>
+
+    <description><![CDATA[
+    This is a sample plugin for jetbrains IDE.
+    ]]></description>
+
+    <depends>org.jetbrains.kotlin</depends>
+
+    <project-components>
+        <component>
+            <implementation-class>com.github.tmurakami.kcps.idea.IdeaProjectComponent</implementation-class>
+        </component>
+    </project-components>
+</idea-plugin>
