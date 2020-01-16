@@ -1,6 +1,6 @@
 package com.github.tmurakami.kcps.compiler.codegen.jvm
 
-import com.github.tmurakami.kcps.compiler.codegen.DumpToFunctionGenerator
+import com.github.tmurakami.kcps.compiler.codegen.AbstractDumpToFunctionGenerator
 import org.jetbrains.kotlin.codegen.ExpressionCodegen
 import org.jetbrains.kotlin.codegen.FunctionGenerationStrategy
 import org.jetbrains.kotlin.codegen.ImplementationBodyCodegen
@@ -10,7 +10,7 @@ import org.jetbrains.kotlin.resolve.jvm.diagnostics.OtherOriginFromPure
 import org.jetbrains.kotlin.resolve.jvm.jvmSignature.JvmMethodSignature
 
 internal class JvmDumpToFunctionGenerator(private val bodyCodegen: ImplementationBodyCodegen) :
-    DumpToFunctionGenerator {
+    AbstractDumpToFunctionGenerator() {
     override fun FunctionDescriptor.generate(calleeDescriptor: FunctionDescriptor) {
         val bodyCodegen = bodyCodegen
         val strategy = object : FunctionGenerationStrategy.CodegenBased(bodyCodegen.state) {

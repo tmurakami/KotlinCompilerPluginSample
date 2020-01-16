@@ -81,7 +81,7 @@ private abstract class AbstractCompiler<A : CommonCompilerArguments> protected c
             .toList()
         val args = createArguments(outDir, classpath).apply {
             freeArgs = files.map { (name, source) -> srcDir.resolve(name).apply { writeText(source) }.path }
-            pluginClasspaths = classpath.map { it.path }.toTypedArray()
+            pluginClasspaths = classpath.map(File::getPath).toTypedArray()
         }
         val out = ByteArrayOutputStream()
         val messageCollector = PrintingMessageCollector(PrintStream(out), NameMessageRenderer, false)

@@ -1,7 +1,6 @@
 package com.github.tmurakami.kcps.compiler.extensions
 
 import com.github.tmurakami.kcps.compiler.PluginEnabledOn
-import com.github.tmurakami.kcps.compiler.codegen.generateDumpToFunctionIfNeeded
 import com.github.tmurakami.kcps.compiler.codegen.js.JsDumpToFunctionGenerator
 import org.jetbrains.kotlin.descriptors.ClassDescriptor
 import org.jetbrains.kotlin.js.translate.context.TranslationContext
@@ -17,8 +16,6 @@ internal class JsSyntheticTranslateExtensionImpl(private val pluginEnabledOn: Pl
         translator: DeclarationBodyVisitor,
         context: TranslationContext
     ) {
-        if (pluginEnabledOn(descriptor)) {
-            descriptor.generateDumpToFunctionIfNeeded { JsDumpToFunctionGenerator(translator, context) }
-        }
+        if (pluginEnabledOn(descriptor)) JsDumpToFunctionGenerator(translator, context).generateIfDumpable(descriptor)
     }
 }

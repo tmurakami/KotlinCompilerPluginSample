@@ -1,6 +1,6 @@
 package com.github.tmurakami.kcps.compiler.codegen.ir
 
-import com.github.tmurakami.kcps.compiler.codegen.DumpToFunctionGenerator
+import com.github.tmurakami.kcps.compiler.codegen.AbstractDumpToFunctionGenerator
 import org.jetbrains.kotlin.backend.common.BackendContext
 import org.jetbrains.kotlin.backend.common.lower.at
 import org.jetbrains.kotlin.backend.common.lower.createIrBuilder
@@ -29,7 +29,7 @@ import org.jetbrains.kotlin.resolve.descriptorUtil.module
 private val ORIGIN = object : IrDeclarationOriginImpl("KotlinCompilerPluginSample") {}
 
 internal class IrDumpToFunctionGenerator(private val irClass: IrClass, private val backendContext: BackendContext) :
-    DumpToFunctionGenerator {
+    AbstractDumpToFunctionGenerator() {
     private val symbolTable = SymbolTable()
     private val externalSymbolTable = backendContext.ir.symbols.externalSymbolTable
     private val typeTranslator = irClass.descriptor.module.createTypeTranslator(externalSymbolTable)
@@ -48,6 +48,7 @@ internal class IrDumpToFunctionGenerator(private val irClass: IrClass, private v
         block: IrBlockBodyBuilder.(function: IrSimpleFunction) -> Unit
     ) {
         val function = symbolTable.declareSimpleFunction(startOffset, endOffset, ORIGIN, descriptor)
+        function.parent = this
         function.typeParameters += descriptor.typeParameters.map {
             IrTypeParameterImpl(
                 function.startOffset,
@@ -56,7 +57,6 @@ internal class IrDumpToFunctionGenerator(private val irClass: IrClass, private v
                 IrTypeParameterSymbolImpl(it)
             ).apply {
                 parent = function
-                superTypes += it.upperBounds.map(typeTranslator::translateType)
             }
         }
         fun ParameterDescriptor.toIrValueParameter() = IrValueParameterImpl(
@@ -71,9 +71,11 @@ internal class IrDumpToFunctionGenerator(private val irClass: IrClass, private v
         }
         addMember(function.apply {
             typeTranslator.buildWithScope(this) {
-                parent = this@declareSimpleFunction
                 returnType = typeTranslator.translateType(descriptor.returnType!!)
-                valueParameters += descriptor.valueParameters.map { it.toIrValueParameter() }
+                typeParameters.forEach {
+                    it.superTypes += it.descriptor.upperBounds.map(typeTranslator::translateType)
+                }
+                valueParameters += descriptor.valueParameters.map(ParameterDescriptor::toIrValueParameter)
                 dispatchReceiverParameter = descriptor.dispatchReceiverParameter?.toIrValueParameter()
                 extensionReceiverParameter = descriptor.extensionReceiverParameter?.toIrValueParameter()
                 body = backendContext.createIrBuilder(function.symbol).at(function).irBlockBody { block(function) }

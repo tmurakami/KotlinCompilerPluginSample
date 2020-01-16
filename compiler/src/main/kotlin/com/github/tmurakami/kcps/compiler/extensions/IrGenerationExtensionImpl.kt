@@ -1,7 +1,6 @@
 package com.github.tmurakami.kcps.compiler.extensions
 
 import com.github.tmurakami.kcps.compiler.PluginEnabledOn
-import com.github.tmurakami.kcps.compiler.codegen.generateDumpToFunctionIfNeeded
 import com.github.tmurakami.kcps.compiler.codegen.ir.IrDumpToFunctionGenerator
 import org.jetbrains.kotlin.backend.common.BackendContext
 import org.jetbrains.kotlin.backend.common.extensions.IrGenerationExtension
@@ -16,9 +15,9 @@ internal class IrGenerationExtensionImpl(private val pluginEnabledOn: PluginEnab
     override fun generate(file: IrFile, backendContext: BackendContext, bindingContext: BindingContext) =
         file.transformChildrenVoid(object : IrElementTransformerVoid() {
             override fun visitClass(declaration: IrClass): IrStatement {
-                declaration.descriptor.run {
-                    if (pluginEnabledOn(this)) {
-                        generateDumpToFunctionIfNeeded { IrDumpToFunctionGenerator(declaration, backendContext) }
+                declaration.descriptor.let {
+                    if (pluginEnabledOn(it)) {
+                        IrDumpToFunctionGenerator(declaration, backendContext).generateIfDumpable(it)
                     }
                 }
                 return super.visitClass(declaration)
