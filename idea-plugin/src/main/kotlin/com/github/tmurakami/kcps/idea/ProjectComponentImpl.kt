@@ -9,9 +9,9 @@ import org.jetbrains.kotlin.idea.facet.KotlinFacet
 import org.jetbrains.kotlin.resolve.descriptorUtil.module
 import java.io.File
 
-internal class IdeaProjectComponent(private val project: Project) : ProjectComponent {
-    override fun initComponent() = project.registerComponents { classDescriptor ->
-        classDescriptor
+internal class ProjectComponentImpl(private val project: Project) : ProjectComponent {
+    override fun initComponent() = project.registerComponents { declarationDescriptor ->
+        declarationDescriptor
             .module
             .getCapability(ModuleInfo.Capability)
             ?.unwrapModuleSourceInfo()

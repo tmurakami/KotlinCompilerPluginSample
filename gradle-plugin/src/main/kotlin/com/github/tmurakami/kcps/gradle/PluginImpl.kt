@@ -17,7 +17,7 @@ private const val DEPENDENCY_RUNTIME = "$GROUP_ID:runtime:$VERSION"
 private val PLUGIN_ARTIFACT = SubpluginArtifact(GROUP_ID, "compiler-embeddable", VERSION)
 private val PLUGIN_ARTIFACT_NATIVE = SubpluginArtifact(GROUP_ID, "compiler", VERSION)
 
-internal class GradlePlugin : Plugin<Project> {
+internal class PluginImpl : Plugin<Project> {
     override fun apply(target: Project) = target.configurations.configureEach {
         if (it.name == "implementation" || it.name == "commonMainImplementation") {
             it.dependencies += target.dependencies.create(DEPENDENCY_RUNTIME)
@@ -26,7 +26,7 @@ internal class GradlePlugin : Plugin<Project> {
 }
 
 @AutoService(KotlinGradleSubplugin::class)
-internal class GradleSubplugin : KotlinGradleSubplugin<AbstractCompile> {
+internal class KotlinGradleSubpluginImpl : KotlinGradleSubplugin<AbstractCompile> {
     override fun apply(
         project: Project,
         kotlinCompile: AbstractCompile,
@@ -34,10 +34,10 @@ internal class GradleSubplugin : KotlinGradleSubplugin<AbstractCompile> {
         variantData: Any?,
         androidProjectHandler: Any?,
         kotlinCompilation: KotlinCompilation<KotlinCommonOptions>?
-    ): List<SubpluginOption> = emptyList()
+    ): List<SubpluginOption> = listOf(SubpluginOption("enabled", "true"))
 
     override fun isApplicable(project: Project, task: AbstractCompile): Boolean =
-        project.plugins.hasPlugin(GradlePlugin::class.java)
+        project.plugins.hasPlugin(PluginImpl::class.java)
 
     override fun getCompilerPluginId(): String = COMPILER_PLUGIN_ID
     override fun getPluginArtifact(): SubpluginArtifact = PLUGIN_ARTIFACT

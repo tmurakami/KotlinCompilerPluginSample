@@ -6,7 +6,7 @@ import org.jetbrains.kotlin.compiler.plugin.ComponentRegistrar
 import org.jetbrains.kotlin.config.CompilerConfiguration
 
 @AutoService(ComponentRegistrar::class)
-internal class PluginComponentRegistrar : ComponentRegistrar {
+internal class ComponentRegistrarImpl : ComponentRegistrar {
     override fun registerProjectComponents(project: MockProject, configuration: CompilerConfiguration) =
         project.registerComponents { true }
 }

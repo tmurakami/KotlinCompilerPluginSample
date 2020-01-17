@@ -10,14 +10,14 @@ import org.jetbrains.kotlin.backend.common.extensions.IrGenerationExtension
 import org.jetbrains.kotlin.codegen.extensions.ExpressionCodegenExtension
 import org.jetbrains.kotlin.container.StorageComponentContainer
 import org.jetbrains.kotlin.container.useInstance
-import org.jetbrains.kotlin.descriptors.ClassDescriptor
+import org.jetbrains.kotlin.descriptors.DeclarationDescriptor
 import org.jetbrains.kotlin.descriptors.ModuleDescriptor
 import org.jetbrains.kotlin.extensions.StorageComponentContainerContributor
 import org.jetbrains.kotlin.js.translate.extensions.JsSyntheticTranslateExtension
 import org.jetbrains.kotlin.platform.TargetPlatform
 import org.jetbrains.kotlin.resolve.extensions.SyntheticResolveExtension
 
-typealias PluginEnabledOn = (classDescriptor: ClassDescriptor) -> Boolean
+typealias PluginEnabledOn = (declarationDescriptor: DeclarationDescriptor) -> Boolean
 
 fun Project.registerComponents(pluginEnabledOn: PluginEnabledOn) {
     StorageComponentContainerContributor.registerExtension(this, object : StorageComponentContainerContributor {

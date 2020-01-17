@@ -8,7 +8,7 @@ gradlePlugin {
     plugins {
         create("simplePlugin") {
             id = group as String
-            implementationClass = "$id.gradle.GradlePlugin"
+            implementationClass = "$id.gradle.PluginImpl"
         }
     }
 }
