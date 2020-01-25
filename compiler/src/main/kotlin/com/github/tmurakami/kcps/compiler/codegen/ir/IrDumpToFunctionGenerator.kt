@@ -47,38 +47,38 @@ internal class IrDumpToFunctionGenerator(private val irClass: IrClass, private v
         descriptor: FunctionDescriptor,
         block: IrBlockBodyBuilder.(function: IrSimpleFunction) -> Unit
     ) {
-        val function = symbolTable.declareSimpleFunction(startOffset, endOffset, ORIGIN, descriptor)
-        function.parent = this
-        function.typeParameters += descriptor.typeParameters.map {
+        val f = symbolTable.declareSimpleFunction(startOffset, endOffset, ORIGIN, descriptor)
+        val startOffset = f.startOffset
+        val endOffset = f.endOffset
+        f.typeParameters += descriptor.typeParameters.map {
             IrTypeParameterImpl(
-                function.startOffset,
-                function.endOffset,
+                startOffset,
+                endOffset,
                 ORIGIN,
                 IrTypeParameterSymbolImpl(it)
             ).apply {
-                parent = function
+                parent = f
             }
         }
         fun ParameterDescriptor.toIrValueParameter() = IrValueParameterImpl(
-            function.startOffset,
-            function.endOffset,
+            startOffset,
+            endOffset,
             ORIGIN,
             this,
             typeTranslator.translateType(type),
             null
         ).apply {
-            parent = function
+            parent = f
         }
-        addMember(function.apply {
+        addMember(f.apply {
             typeTranslator.buildWithScope(this) {
+                parent = this@declareSimpleFunction
                 returnType = typeTranslator.translateType(descriptor.returnType!!)
-                typeParameters.forEach {
-                    it.superTypes += it.descriptor.upperBounds.map(typeTranslator::translateType)
-                }
-                valueParameters += descriptor.valueParameters.map(ParameterDescriptor::toIrValueParameter)
                 dispatchReceiverParameter = descriptor.dispatchReceiverParameter?.toIrValueParameter()
                 extensionReceiverParameter = descriptor.extensionReceiverParameter?.toIrValueParameter()
-                body = backendContext.createIrBuilder(function.symbol).at(function).irBlockBody { block(function) }
+                typeParameters.forEach { it.superTypes += it.descriptor.upperBounds.map(typeTranslator::translateType) }
+                valueParameters += descriptor.valueParameters.map(ParameterDescriptor::toIrValueParameter)
+                body = backendContext.createIrBuilder(f.symbol).at(f).irBlockBody { block(f) }
             }
         })
     }
