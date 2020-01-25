@@ -1,3 +1,5 @@
+@file:Suppress("NOTHING_TO_INLINE")
+
 package com.github.tmurakami.kcps.compiler
 
 import org.jetbrains.kotlin.cli.common.CLICompiler
@@ -36,7 +38,12 @@ data class KotlinFile(val name: String, val source: String) {
 
 data class Compilation(val exitCode: ExitCode, val message: String)
 
-fun Compilation.assertSucceeded() = assertEquals(ExitCode.OK, exitCode)
+inline fun Compilation.assertResult(exitCode: ExitCode, message: String) {
+    assertEquals(exitCode, this.exitCode)
+    assertEquals(message, this.message)
+}
+
+inline fun Compilation.assertSucceeded() = assertResult(ExitCode.OK, "")
 
 fun jsCompiler(): Compiler = object : AbstractCompiler<K2JSCompilerArguments>(K2JSCompiler()) {
     override fun createArguments(outputDir: File, classpathFiles: List<File>): K2JSCompilerArguments =
