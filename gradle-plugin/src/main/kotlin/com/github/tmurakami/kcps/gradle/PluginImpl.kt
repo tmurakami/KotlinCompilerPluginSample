@@ -34,7 +34,7 @@ internal class KotlinGradleSubpluginImpl : KotlinGradleSubplugin<AbstractCompile
         variantData: Any?,
         androidProjectHandler: Any?,
         kotlinCompilation: KotlinCompilation<KotlinCommonOptions>?
-    ): List<SubpluginOption> = listOf(SubpluginOption("enabled", "true"))
+    ): List<SubpluginOption> = emptyList()
 
     override fun isApplicable(project: Project, task: AbstractCompile): Boolean =
         project.plugins.hasPlugin(PluginImpl::class.java)
