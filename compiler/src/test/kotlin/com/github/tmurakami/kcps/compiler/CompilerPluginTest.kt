@@ -43,7 +43,7 @@ class CompilerPluginTest {
 
     @Test
     fun `ensure the JVM IR compiler adds the dumpTo function to a data class`() =
-        jvmIrCompiler().compile(file).assertSucceeded()
+        jvmIRCompiler().compile(file).assertSucceeded()
 
     @Test
     fun `ensure the Dumpable annotation cannot be annotated on a non-data class`() =

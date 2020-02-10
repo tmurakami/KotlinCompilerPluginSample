@@ -45,35 +45,35 @@ inline fun Compilation.assertResult(exitCode: ExitCode, message: String) {
 
 inline fun Compilation.assertSucceeded() = assertResult(ExitCode.OK, "")
 
-fun jsCompiler(): Compiler = object : AbstractCompiler<K2JSCompilerArguments>(K2JSCompiler()) {
-    override fun createArguments(outputDir: File, classpathFiles: List<File>): K2JSCompilerArguments =
+fun jsCompiler(): Compiler =
+    CompilerImpl(K2JSCompiler()) { outputDir, _ ->
         K2JSCompilerArguments().apply {
             noStdlib = true
             outputFile = File(outputDir, "out.js").path
             libraries = System.getProperty(KEY_JS_LIBRARIES)
         }
-}
+    }
 
-fun jvmCompiler(): Compiler = jvmCompiler(useIr = false)
-fun jvmIrCompiler(): Compiler = jvmCompiler(useIr = true)
-
-private fun jvmCompiler(useIr: Boolean): Compiler = object : AbstractCompiler<K2JVMCompilerArguments>(K2JVMCompiler()) {
-    override fun createArguments(outputDir: File, classpathFiles: List<File>): K2JVMCompilerArguments =
+fun jvmCompiler(additionalOptions: K2JVMCompilerArguments.() -> Unit = {}): Compiler =
+    CompilerImpl(K2JVMCompiler()) { outputDir, classpathFiles ->
         K2JVMCompilerArguments().apply {
             noStdlib = true
             destinationAsFile = outputDir
             classpathAsList = classpathFiles
-            useIR = useIr
+            additionalOptions()
         }
-}
+    }
+
+inline fun jvmIRCompiler(): Compiler = jvmCompiler { useIR = true }
 
 private object NameMessageRenderer : PlainTextMessageRenderer() {
     override fun getPath(location: CompilerMessageLocation): String = File(location.path).name
     override fun getName(): String = "Name"
 }
 
-private abstract class AbstractCompiler<A : CommonCompilerArguments> protected constructor(
-    private val compiler: CLICompiler<A>
+private class CompilerImpl<A : CommonCompilerArguments>(
+    private val compiler: CLICompiler<A>,
+    private val createArguments: (outputDir: File, classpathFiles: List<File>) -> A
 ) : Compiler {
     override fun compile(vararg files: KotlinFile): Compilation {
         val tempDir = createTempDir("KotlinCompilerPluginSample", "").apply {
@@ -87,7 +87,7 @@ private abstract class AbstractCompiler<A : CommonCompilerArguments> protected c
             .filter(File::exists)
             .toList()
         val args = createArguments(outDir, classpath).apply {
-            freeArgs = files.map { (name, source) -> srcDir.resolve(name).apply { writeText(source) }.path }
+            freeArgs = files.map { (name, source) -> File(srcDir, name).apply { writeText(source) }.path }
             pluginClasspaths = classpath.map(File::getPath).toTypedArray()
         }
         val out = ByteArrayOutputStream()
@@ -95,6 +95,4 @@ private abstract class AbstractCompiler<A : CommonCompilerArguments> protected c
         val exitCode = compiler.execImpl(messageCollector, Services.EMPTY, args)
         return Compilation(exitCode, out.toString(StandardCharsets.UTF_8.name()))
     }
-
-    protected abstract fun createArguments(outputDir: File, classpathFiles: List<File>): A
 }
