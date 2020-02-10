@@ -64,8 +64,6 @@ fun jvmCompiler(additionalOptions: K2JVMCompilerArguments.() -> Unit = {}): Comp
         }
     }
 
-inline fun jvmIRCompiler(): Compiler = jvmCompiler { useIR = true }
-
 private object NameMessageRenderer : PlainTextMessageRenderer() {
     override fun getPath(location: CompilerMessageLocation): String = File(location.path).name
     override fun getName(): String = "Name"
