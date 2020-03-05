@@ -1,11 +1,9 @@
 package com.github.tmurakami.kcps.compiler.codegen.ir
 
 import com.github.tmurakami.kcps.compiler.codegen.AbstractDumpToFunctionGenerator
-import org.jetbrains.kotlin.backend.common.BackendContext
-import org.jetbrains.kotlin.backend.common.lower.at
-import org.jetbrains.kotlin.backend.common.lower.createIrBuilder
+import org.jetbrains.kotlin.backend.common.extensions.IrPluginContext
+import org.jetbrains.kotlin.backend.common.lower.DeclarationIrBuilder
 import org.jetbrains.kotlin.descriptors.FunctionDescriptor
-import org.jetbrains.kotlin.descriptors.ModuleDescriptor
 import org.jetbrains.kotlin.descriptors.ParameterDescriptor
 import org.jetbrains.kotlin.ir.builders.IrBlockBodyBuilder
 import org.jetbrains.kotlin.ir.builders.irBlockBody
@@ -20,23 +18,16 @@ import org.jetbrains.kotlin.ir.declarations.impl.IrTypeParameterImpl
 import org.jetbrains.kotlin.ir.declarations.impl.IrValueParameterImpl
 import org.jetbrains.kotlin.ir.symbols.impl.IrTypeParameterSymbolImpl
 import org.jetbrains.kotlin.ir.types.defaultType
-import org.jetbrains.kotlin.ir.util.ConstantValueGenerator
-import org.jetbrains.kotlin.ir.util.ReferenceSymbolTable
-import org.jetbrains.kotlin.ir.util.SymbolTable
-import org.jetbrains.kotlin.ir.util.TypeTranslator
-import org.jetbrains.kotlin.resolve.descriptorUtil.module
 
 private val ORIGIN = object : IrDeclarationOriginImpl("KotlinCompilerPluginSample") {}
 
-internal class IrDumpToFunctionGenerator(private val irClass: IrClass, private val backendContext: BackendContext) :
+internal class IrDumpToFunctionGenerator(private val irClass: IrClass, private val pluginContext: IrPluginContext) :
     AbstractDumpToFunctionGenerator() {
-    private val symbolTable = SymbolTable()
-    private val externalSymbolTable = backendContext.ir.symbols.externalSymbolTable
-    private val typeTranslator = irClass.descriptor.module.createTypeTranslator(externalSymbolTable)
-
     override fun FunctionDescriptor.generate(calleeDescriptor: FunctionDescriptor) =
         irClass.declareSimpleFunction(this) {
-            +irReturn(irCall(externalSymbolTable.referenceSimpleFunction(calleeDescriptor)).apply {
+            val callee = pluginContext.symbolTable.referenceSimpleFunction(calleeDescriptor)
+            val returnType = pluginContext.typeTranslator.translateType(calleeDescriptor.returnType!!)
+            +irReturn(irCall(callee, returnType).apply {
                 extensionReceiver = irGet(it.dispatchReceiverParameter!!)
                 it.typeParameters.forEachIndexed { i, parameter -> putTypeArgument(i, parameter.defaultType) }
                 it.valueParameters.forEachIndexed { i, parameter -> putValueArgument(i, irGet(parameter)) }
@@ -47,7 +38,7 @@ internal class IrDumpToFunctionGenerator(private val irClass: IrClass, private v
         descriptor: FunctionDescriptor,
         block: IrBlockBodyBuilder.(function: IrSimpleFunction) -> Unit
     ) {
-        val f = symbolTable.declareSimpleFunction(startOffset, endOffset, ORIGIN, descriptor)
+        val f = pluginContext.symbolTable.declareSimpleFunction(startOffset, endOffset, ORIGIN, descriptor)
         val startOffset = f.startOffset
         val endOffset = f.endOffset
         f.typeParameters += descriptor.typeParameters.map {
@@ -60,6 +51,7 @@ internal class IrDumpToFunctionGenerator(private val irClass: IrClass, private v
                 parent = f
             }
         }
+        val typeTranslator = pluginContext.typeTranslator
         fun ParameterDescriptor.toIrValueParameter() = IrValueParameterImpl(
             startOffset,
             endOffset,
@@ -78,17 +70,8 @@ internal class IrDumpToFunctionGenerator(private val irClass: IrClass, private v
                 extensionReceiverParameter = descriptor.extensionReceiverParameter?.toIrValueParameter()
                 typeParameters.forEach { it.superTypes += it.descriptor.upperBounds.map(typeTranslator::translateType) }
                 valueParameters += descriptor.valueParameters.map(ParameterDescriptor::toIrValueParameter)
-                body = backendContext.createIrBuilder(f.symbol).at(f).irBlockBody { block(f) }
+                body = DeclarationIrBuilder(pluginContext, symbol, startOffset, endOffset).irBlockBody { block(f) }
             }
         })
     }
-
-    private fun ModuleDescriptor.createTypeTranslator(symbolTable: ReferenceSymbolTable): TypeTranslator =
-        TypeTranslator(
-            symbolTable,
-            backendContext.irBuiltIns.languageVersionSettings,
-            builtIns
-        ).also {
-            it.constantValueGenerator = ConstantValueGenerator(this, symbolTable).apply { typeTranslator = it }
-        }
 }

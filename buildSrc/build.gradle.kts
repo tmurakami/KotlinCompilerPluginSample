@@ -11,7 +11,7 @@ repositories {
 }
 
 dependencies {
-    api(kotlin("gradle-plugin", version = "1.3.61"))
+    api(kotlin("gradle-plugin", version = "1.3.70"))
     api("org.jlleitschuh.gradle:ktlint-gradle:9.1.1")
     api("com.github.jengelman.gradle.plugins:shadow:5.2.0")
     api("gradle.plugin.org.jetbrains.intellij.plugins:gradle-intellij-plugin:0.4.15")

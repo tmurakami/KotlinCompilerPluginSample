@@ -6,8 +6,8 @@ plugins {
 }
 
 intellij {
-    version = "2019.3.2"
-    setPlugins("org.jetbrains.kotlin:1.3.61-release-IJ2019.3-1")
+    version = "2019.3.3"
+    setPlugins("org.jetbrains.kotlin:1.3.70-release-IJ2019.3-1")
 }
 
 dependencies {
