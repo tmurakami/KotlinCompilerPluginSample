@@ -26,6 +26,7 @@ internal fun <D : Diagnostic> DeclarationCheckerContext.reportFromPlugin(diagnos
 private object PluginErrorsRendering : DefaultErrorMessages.Extension {
     private val MAP = DiagnosticFactoryToRendererMap().apply {
         put(PluginErrors.DATA_ONLY, "@${Dumpable::class.java.simpleName} can only be annotated on a data class")
+        setImmutable()
     }
 
     override fun getMap(): DiagnosticFactoryToRendererMap = MAP

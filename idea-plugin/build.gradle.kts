@@ -6,8 +6,8 @@ plugins {
 }
 
 intellij {
-    version = "2019.3.3"
-    setPlugins("org.jetbrains.kotlin:1.3.70-release-IJ2019.3-1")
+    version = "2020.1"
+    setPlugins("org.jetbrains.kotlin:1.3.71-release-IJ2020.1-1")
 }
 
 dependencies {
@@ -20,4 +20,12 @@ tasks.named<PatchPluginXmlTask>("patchPluginXml") {
         Add change notes here.<br>
         <em>most HTML tags may be used</em>"""
     )
+}
+
+tasks.buildSearchableOptions {
+    enabled = false
+}
+
+tasks.runIde {
+    jvmArgs("--add-exports", "java.base/jdk.internal.vm=ALL-UNNAMED")
 }

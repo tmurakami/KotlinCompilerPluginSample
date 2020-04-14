@@ -1,5 +1,6 @@
 package com.github.tmurakami.kcps.compiler.extensions
 
+import com.github.tmurakami.kcps.compiler.ALWAYS_ENABLED
 import com.github.tmurakami.kcps.compiler.PluginEnabledOn
 import com.github.tmurakami.kcps.compiler.codegen.js.JsDumpToFunctionGenerator
 import org.jetbrains.kotlin.descriptors.ClassDescriptor
@@ -8,7 +9,7 @@ import org.jetbrains.kotlin.js.translate.declaration.DeclarationBodyVisitor
 import org.jetbrains.kotlin.js.translate.extensions.JsSyntheticTranslateExtension
 import org.jetbrains.kotlin.psi.KtPureClassOrObject
 
-internal class JsSyntheticTranslateExtensionImpl(private val pluginEnabledOn: PluginEnabledOn) :
+class JsSyntheticTranslateExtensionImpl(private val pluginEnabledOn: PluginEnabledOn = ALWAYS_ENABLED) :
     JsSyntheticTranslateExtension {
     override fun generateClassSyntheticParts(
         declaration: KtPureClassOrObject,

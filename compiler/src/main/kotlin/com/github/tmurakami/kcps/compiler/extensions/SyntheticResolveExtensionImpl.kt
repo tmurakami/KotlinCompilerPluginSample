@@ -1,5 +1,6 @@
 package com.github.tmurakami.kcps.compiler.extensions
 
+import com.github.tmurakami.kcps.compiler.ALWAYS_ENABLED
 import com.github.tmurakami.kcps.compiler.PluginEnabledOn
 import com.github.tmurakami.kcps.compiler.resolve.Names
 import com.github.tmurakami.kcps.compiler.resolve.findDumpToExtensionFunctionDescriptor
@@ -15,7 +16,8 @@ import org.jetbrains.kotlin.name.Name
 import org.jetbrains.kotlin.resolve.BindingContext
 import org.jetbrains.kotlin.resolve.extensions.SyntheticResolveExtension
 
-internal class SyntheticResolveExtensionImpl(private val pluginEnabledOn: PluginEnabledOn) : SyntheticResolveExtension {
+class SyntheticResolveExtensionImpl(private val pluginEnabledOn: PluginEnabledOn = ALWAYS_ENABLED) :
+    SyntheticResolveExtension {
     override fun getSyntheticFunctionNames(thisDescriptor: ClassDescriptor): List<Name> =
         if (pluginEnabledOn(thisDescriptor) && thisDescriptor.isDumpable()) {
             listOf(Names.Functions.DUMP_TO)

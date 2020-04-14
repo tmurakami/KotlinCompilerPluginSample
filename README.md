@@ -1,1 +1,2 @@
-Kotlin 1.3.70
+- Kotlin 1.3.71
+- IntelliJ IDEA 2020.1

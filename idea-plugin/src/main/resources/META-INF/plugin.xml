@@ -9,9 +9,16 @@
 
     <depends>org.jetbrains.kotlin</depends>
 
-    <project-components>
-        <component>
-            <implementation-class>com.github.tmurakami.kcps.idea.ProjectComponentImpl</implementation-class>
-        </component>
-    </project-components>
+    <extensions defaultExtensionNs="org.jetbrains.kotlin">
+        <expressionCodegenExtension
+                implementation="com.github.tmurakami.kcps.idea.extensions.IdeaExpressionCodegenExtension"/>
+        <irGenerationExtension
+                implementation="com.github.tmurakami.kcps.idea.extensions.IdeaIrGenerationExtension"/>
+        <jsSyntheticTranslateExtension
+                implementation="com.github.tmurakami.kcps.idea.extensions.IdeaJsSyntheticTranslateExtension"/>
+        <storageComponentContainerContributor
+                implementation="com.github.tmurakami.kcps.idea.extensions.IdeaStorageComponentContainerContributor"/>
+        <syntheticResolveExtension
+                implementation="com.github.tmurakami.kcps.idea.extensions.IdeaSyntheticResolveExtension"/>
+    </extensions>
 </idea-plugin>
