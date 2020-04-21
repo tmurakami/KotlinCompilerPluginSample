@@ -1,7 +1,7 @@
 import org.jetbrains.kotlin.gradle.plugin.mpp.AbstractKotlinNativeTargetPreset
 
 plugins {
-    kotlin("multiplatform") version "1.3.71"
+    kotlin("multiplatform") version "1.3.72"
     id("com.github.tmurakami.kcps") version "0.0.1"
 }
 

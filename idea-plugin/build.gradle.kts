@@ -7,7 +7,7 @@ plugins {
 
 intellij {
     version = "2020.1"
-    setPlugins("org.jetbrains.kotlin:1.3.71-release-IJ2020.1-1")
+    setPlugins("org.jetbrains.kotlin:1.3.72-release-IJ2020.1-1")
 }
 
 dependencies {
